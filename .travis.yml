@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: SqJ1Czbs34jfEdaM5J9dn492N3a5vOEZ7k8zdduCGuU/koAKCpAP/Q7vHJEsKF9IFg5SdHOOmj/EPbfDouE8RKd8T1/ao0ohed4Kw+VJ3C7/1QZkU2Mjpz+ljV4mWlN5Afi1U7Q+gqgaoB1bRrtmhPkXKpWd0seOBLidC57U2U87ULOVYnyco1yysXGXsFq0ItUT0BOqK8WlMWrD7VV3wGzNXQPcJbJD09bqND/YlQqQiAeBfxBuSP65KRtBD3sLc8+lr6IkYsQpgTzJbwkoTcLGTZNyDMHdzIm53vltsj7UGM0+Fz+TPCejfLu6UQTfdZbmEitlG+u0A/UA9t/f5DUNpgcwm8xKBMrMrWh95ucaY71kRQtZ7t6TnbP5PbTwHdZ3GSSdCTYNn19oq0XGW0PdCFKBc6VISIfqvv/s0nLEJBicVwB95wpZjilPDUVqmMeSjYc3JbWomTrYm/VZ5V7lYO0lJWbfHtnxvgK6St8BkeMpHbmW1YIg6tIKFAFHilvQ83rcNyiSpFAOriraKUaRWdHrXOsspcmnFqema4bWHQDQStydWX22yawuvg6+lcrN01vA1KSNksz/U7q5stDaxmP/E1I72+DPh/GlQOSUrz/P51mGfcrxYVWuoSCR9aNydS6rjlurrwbZXCgKOB9sz473P8CsCPe80KqGfU0=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Marquise-De-Ganges--13-Celebrated-Crimes_2758
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
